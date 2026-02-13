@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Pac-DNA Mastery Lab (Targets + Adaptive + Levels)</title>
+<title>Pac-DNA Mastery Lab (Themes + Power Pellets)</title>
 <style>
   :root{
     --bg0:#070a16; --bg1:#0b1230;
@@ -17,7 +17,8 @@
   }
   *{box-sizing:border-box}
   body{
-    margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    margin:0;
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     color:var(--text);
     background:
       radial-gradient(900px 550px at 18% 0%, #1a2a74 0%, rgba(26,42,116,0) 60%),
@@ -30,14 +31,13 @@
     display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap;
   }
   h1{margin:0; font-size:28px; line-height:1.1}
-  .sub{margin:8px 0 0; color:var(--muted); max-width:95ch}
+  .sub{margin:8px 0 0; color:var(--muted); max-width:110ch}
   .kbd{
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     font-size:12px; padding:2px 6px;
     border:1px solid var(--stroke); border-radius:8px;
     background: rgba(255,255,255,0.05);
   }
-
   main{
     max-width:1180px; margin:0 auto; padding:10px 16px 36px;
     display:grid; gap:14px;
@@ -46,7 +46,6 @@
   @media (min-width: 980px){
     main{grid-template-columns: 1.2fr 0.8fr;}
   }
-
   .card{
     background:var(--card);
     border:1px solid var(--stroke);
@@ -64,7 +63,6 @@
     font-size:12px; color:var(--muted);
   }
   .pill strong{color:var(--text)}
-
   button, select{
     background: rgba(255,255,255,0.06);
     border:1px solid var(--stroke);
@@ -78,9 +76,8 @@
   button:hover{border-color: rgba(255,255,255,0.22)}
   .primary{background: rgba(124,196,255,0.18); border-color: rgba(124,196,255,0.35)}
   .danger{background: rgba(255,92,122,0.12); border-color: rgba(255,92,122,0.26)}
-  .ghost{background: rgba(255,255,255,0.05)}
+  .ghostBtn{background: rgba(255,255,255,0.05)}
   label{font-size:12px; color:var(--muted); font-weight:900}
-
   canvas{
     width:100%;
     border-radius:16px;
@@ -88,14 +85,13 @@
     background: rgba(0,0,0,0.22);
     display:block;
   }
-  .hud{
-    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+  .panel{
     border:1px solid var(--stroke);
     background: rgba(255,255,255,0.04);
     border-radius: 16px;
-    padding:10px 12px;
-    margin-bottom:12px;
+    padding:12px;
   }
+  .panel h3{margin:0 0 8px; font-size:14px}
   .small{font-size:12px; color:var(--muted)}
   .qText{font-size:18px; margin:10px 0 10px; line-height:1.25}
   .answers{display:grid; gap:10px}
@@ -120,7 +116,6 @@
   .answerBtn.correct{border-color: rgba(78,229,154,0.55); background: rgba(78,229,154,0.12)}
   .answerBtn.wrong{border-color: rgba(255,92,122,0.55); background: rgba(255,92,122,0.11)}
   .answerBtn.locked{cursor:default; opacity:0.98}
-
   .feedback{
     margin-top:12px;
     padding:12px;
@@ -134,15 +129,6 @@
   .feedback .title{font-weight:1000; display:flex;align-items:center;gap:8px; margin-bottom:6px}
   .feedback p{margin:0;color:var(--muted)}
   .explain{margin-top:8px; color:var(--text); font-size:14px; line-height:1.35}
-
-  .panel{
-    border:1px solid var(--stroke);
-    background: rgba(255,255,255,0.04);
-    border-radius: 16px;
-    padding:12px;
-  }
-  .panel h3{margin:0 0 8px; font-size:14px}
-
   .targetCard{
     border:1px solid var(--stroke);
     border-radius:16px;
@@ -185,8 +171,9 @@
   <div>
     <h1>Pac-DNA Mastery Lab</h1>
     <p class="sub">
-      Answer questions to earn <b>Moves</b>. Use moves to collect DNA dots while dodging the ghost.
-      Clear all dots to <b>Level Up</b> (ghost gets faster). Questions are <b>adaptive</b> to help mastery.
+      Correct answers give <b>Moves</b>. Use moves to collect dots ⚪ and power pellets ⭐ while dodging ghosts 👻.
+      Clear all dots to <b>Level Up</b> — the maze regenerates with a new <b>theme</b>.
+      Warp tunnels: left ↔ right in the middle row.
     </p>
   </div>
   <div class="small">
@@ -195,32 +182,38 @@
 </header>
 
 <main>
-  <!-- LEFT: Game + Quiz -->
   <section class="card">
-    <div class="hud">
-      <div class="row">
-        <span class="pill"><strong>Character:</strong> <span id="charName">Mr. Pac-Cell</span></span>
-        <span class="pill"><strong>Level:</strong> <span id="levelNum">1</span></span>
-        <span class="pill"><strong>Moves:</strong> <span id="movesNum">0</span></span>
-        <span class="pill"><strong>Lives:</strong> <span id="livesNum">3</span></span>
-        <span class="pill"><strong>Dots:</strong> <span id="dotsLeft">0</span></span>
-      </div>
-      <div class="row">
-        <div>
-          <label for="charSelect">Mode</label><br/>
-          <select id="charSelect">
-            <option value="mr">Mr. Pac-Cell</option>
-            <option value="ms">Ms. Pac-Cell</option>
-          </select>
+    <div class="panel" style="margin-bottom:12px">
+      <div class="row" style="justify-content:space-between;">
+        <div class="row">
+          <span class="pill"><strong>Theme:</strong> <span id="themeName">—</span></span>
+          <span class="pill"><strong>Character:</strong> <span id="charName">Mr. Pac-Cell</span></span>
+          <span class="pill"><strong>Level:</strong> <span id="levelNum">1</span></span>
+          <span class="pill"><strong>Moves:</strong> <span id="movesNum">0</span></span>
+          <span class="pill"><strong>Lives:</strong> <span id="livesNum">3</span></span>
+          <span class="pill"><strong>Dots:</strong> <span id="dotsLeft">0</span></span>
+          <span class="pill"><strong>Ghosts:</strong> <span id="ghostCount">1</span></span>
+          <span class="pill"><strong>Game Score:</strong> <span id="gameScore">0</span></span>
+          <span class="pill"><strong>Power:</strong> <span id="powerTime">0.0</span>s</span>
         </div>
-        <button class="danger" id="resetBtn">Reset</button>
+        <div class="row">
+          <div>
+            <label for="charSelect">Mode</label><br/>
+            <select id="charSelect">
+              <option value="mr">Mr. Pac-Cell</option>
+              <option value="ms">Ms. Pac-Cell</option>
+            </select>
+          </div>
+          <button class="ghostBtn" id="soundBtn">🔊 Sound</button>
+          <button class="danger" id="resetBtn">Reset</button>
+        </div>
+      </div>
+      <div class="small" style="margin-top:8px">
+        ⭐ Power pellet: ghosts turn blue (frightened). Touch them to “eat” them for points.
       </div>
     </div>
 
-    <canvas id="game" width="820" height="520"></canvas>
-    <div class="small" style="margin-top:8px">
-      Tip: If Moves hit 0, answer another question to keep playing. Clearing all dots increases level + difficulty.
-    </div>
+    <canvas id="game" width="860" height="520"></canvas>
 
     <div class="panel" style="margin-top:12px">
       <div class="row" style="justify-content:space-between;">
@@ -253,19 +246,16 @@
       </div>
 
       <div class="row" style="margin-top:10px; justify-content:space-between;">
-        <button class="ghost" id="hintBtn">Hint</button>
+        <button class="ghostBtn" id="hintBtn">Hint</button>
         <button class="primary" id="nextBtn">Next Question</button>
       </div>
     </div>
   </section>
 
-  <!-- RIGHT: Targets + Stats -->
   <aside class="card">
     <div class="panel">
       <h3>NGSS-Aligned Learning Targets</h3>
-      <div class="small">
-        Each target becomes <b>Mastered</b> when you build a correct streak and accuracy on that target’s skills.
-      </div>
+      <div class="small">Targets turn mastered as related skills reach streak + accuracy thresholds.</div>
       <div id="targetsPanel"></div>
     </div>
 
@@ -275,9 +265,7 @@
         <span class="pill"><strong>Score:</strong> <span id="quizScore">0</span>/<span id="quizAnswered">0</span></span>
         <span class="pill"><strong>Accuracy:</strong> <span id="quizAcc">—</span></span>
       </div>
-      <div class="small" style="margin-top:8px">
-        Adaptive mode repeats skills you miss more often.
-      </div>
+      <div class="small" style="margin-top:8px">Adaptive mode repeats skills you miss more often.</div>
     </div>
   </aside>
 </main>
@@ -291,49 +279,61 @@ function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.
 function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
 
 /* =========================
-   Learning Targets (5) + NGSS alignment
-   =========================
-   Mastery is computed from the skills mapped to each target.
-*/
-const TARGETS = [
-  {
-    key:"T1_CENTRAL_DOGMA",
-    title:"1) Explain the flow of genetic information (Central Dogma).",
-    standards:"HS-LS1-1",
-    studentText:"I can explain DNA → RNA → Protein and connect gene sequence to protein outcomes.",
-    skills:["Central Dogma","Transcription","Translation","Central Dogma reasoning"]
-  },
-  {
-    key:"T2_DNA_STRUCTURE",
-    title:"2) Label and describe the structure of DNA.",
-    standards:"HS-LS1-1",
-    studentText:"I can identify nucleotides, the sugar-phosphate backbone, base pairing, and bonds.",
-    skills:["DNA Structure","Nucleotide","Phosphate","Deoxyribose Sugar","Nitrogen Base","Complementary Bases","Hydrogen Bonds","Covalent Bonds"]
-  },
-  {
-    key:"T3_REPLICATION",
-    title:"3) Describe how DNA replication preserves genetic information.",
-    standards:"HS-LS3-1, HS-LS1-1",
-    studentText:"I can explain replication and the roles of helicase, DNA polymerase, and ligase.",
-    skills:["Replication overview","Helicase","DNA polymerase","Ligase","Replication reasoning"]
-  },
-  {
-    key:"T4_DNA_VS_RNA",
-    title:"4) Compare and contrast DNA and RNA.",
-    standards:"HS-LS1-1, HS-LS3-1",
-    studentText:"I can compare sugar, bases, strands, and roles in protein synthesis.",
-    skills:["DNA vs RNA","Ribose Sugar","Deoxyribose Sugar","RNA"]
-  },
-  {
-    key:"T5_VOCAB",
-    title:"5) Use genetic vocabulary precisely in explanations.",
-    standards:"HS-LS3-1",
-    studentText:"I can use key terms accurately in context and apply them to diagrams and scenarios.",
-    skills:["Nucleic Acid","Nucleotide","Phosphate","Deoxyribose Sugar","Ribose Sugar","RNA","Nitrogen Base","Complementary Bases","Hydrogen Bonds","Covalent Bonds"]
-  }
-];
+   Sound (no files)
+   ========================= */
+let soundOn = true;
+let audioCtx = null;
+function beep(freq=660, dur=0.07, gain=0.06, type="sine"){
+  if(!soundOn) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    setTimeout(()=>o.stop(), dur*1000);
+  }catch(e){}
+}
+el("soundBtn").addEventListener("click", ()=>{
+  soundOn = !soundOn;
+  el("soundBtn").textContent = soundOn ? "🔊 Sound" : "🔇 Sound";
+});
 
-// Target selection options (All or each)
+/* =========================
+   Themes
+   ========================= */
+const THEMES = [
+  { name:"Replication Lab", bg:"rgba(124,196,255,0.06)", wallFill:"rgba(124,196,255,0.22)", wallStroke:"rgba(183,156,255,0.35)", dot:"#eef2ff", pellet:"#ffd166" },
+  { name:"Central Dogma City", bg:"rgba(255,209,102,0.05)", wallFill:"rgba(255,209,102,0.16)", wallStroke:"rgba(124,196,255,0.30)", dot:"#eef2ff", pellet:"#7cc4ff" },
+  { name:"Nucleus Night", bg:"rgba(183,156,255,0.06)", wallFill:"rgba(183,156,255,0.18)", wallStroke:"rgba(124,196,255,0.28)", dot:"#f5f3ff", pellet:"#ffd166" },
+  { name:"Chromosome Carnival", bg:"rgba(255,92,122,0.05)", wallFill:"rgba(255,92,122,0.14)", wallStroke:"rgba(255,209,102,0.22)", dot:"#fff7ed", pellet:"#b79cff" },
+];
+function themeForLevel(lvl){ return THEMES[(lvl-1) % THEMES.length]; }
+let theme = themeForLevel(1);
+
+/* =========================
+   Learning Targets
+   ========================= */
+const TARGETS = [
+  { key:"T1_CENTRAL_DOGMA", title:"1) Explain the flow of genetic information (Central Dogma).", standards:"HS-LS1-1",
+    studentText:"I can explain DNA → RNA → Protein and connect gene sequence to protein outcomes.",
+    skills:["Central Dogma","Transcription","Translation","Central Dogma reasoning"] },
+  { key:"T2_DNA_STRUCTURE", title:"2) Label and describe the structure of DNA.", standards:"HS-LS1-1",
+    studentText:"I can identify nucleotides, the sugar-phosphate backbone, base pairing, and bonds.",
+    skills:["Nucleotide","Phosphate","Deoxyribose Sugar","Nitrogen Base","Complementary Bases","Hydrogen Bonds","Covalent Bonds"] },
+  { key:"T3_REPLICATION", title:"3) Describe how DNA replication preserves genetic information.", standards:"HS-LS3-1, HS-LS1-1",
+    studentText:"I can explain replication and the roles of helicase, DNA polymerase, and ligase.",
+    skills:["Replication overview","Helicase","DNA polymerase","Ligase","Replication reasoning"] },
+  { key:"T4_DNA_VS_RNA", title:"4) Compare and contrast DNA and RNA.", standards:"HS-LS1-1, HS-LS3-1",
+    studentText:"I can compare sugar, bases, strands, and roles in protein synthesis.",
+    skills:["DNA vs RNA","Ribose Sugar","Deoxyribose Sugar","RNA"] },
+  { key:"T5_VOCAB", title:"5) Use genetic vocabulary precisely in explanations.", standards:"HS-LS3-1",
+    studentText:"I can use key terms accurately in context and apply them to diagrams and scenarios.",
+    skills:["Nucleic Acid","Nucleotide","Phosphate","Deoxyribose Sugar","Ribose Sugar","RNA","Nitrogen Base","Complementary Bases","Hydrogen Bonds","Covalent Bonds"] }
+];
 const TARGET_SELECT = [
   {key:"ALL", label:"All Targets"},
   {key:"T1_CENTRAL_DOGMA", label:"Target 1: Central Dogma"},
@@ -342,12 +342,22 @@ const TARGET_SELECT = [
   {key:"T4_DNA_VS_RNA", label:"Target 4: DNA vs RNA"},
   {key:"T5_VOCAB", label:"Target 5: Vocabulary Precision"},
 ];
+function buildTargetSelect(){
+  const s = el("targetSelect");
+  s.innerHTML = "";
+  TARGET_SELECT.forEach(o=>{
+    const opt = document.createElement("option");
+    opt.value = o.key;
+    opt.textContent = o.label;
+    s.appendChild(opt);
+  });
+  s.value = "ALL";
+}
 
 /* =========================
-   Questions (tag each with a targetKey + skill)
+   Question Bank
    ========================= */
 const QUESTION_BANK = [
-  // Target 1: Central Dogma
   {id:"CD1", targetKey:"T1_CENTRAL_DOGMA", skill:"Central Dogma",
     q:"Which sequence correctly shows the usual flow of genetic information?",
     choices:["Protein → RNA → DNA","DNA → RNA → Protein","RNA → DNA → Protein","DNA → Protein → RNA"],
@@ -370,15 +380,26 @@ const QUESTION_BANK = [
     ],
     answer:0, explain:"DNA changes can alter mRNA codons, amino acids, protein function, and traits."},
 
-  // Target 2: DNA Structure
+  {id:"S5", targetKey:"T2_DNA_STRUCTURE", skill:"Nucleotide",
+    q:"A DNA nucleotide is made of…",
+    choices:["phosphate + sugar + nitrogen base","protein + lipid + sugar","amino acids only","ribose + uracil only"],
+    answer:0, explain:"A nucleotide has a phosphate group, a sugar, and a nitrogen base."},
+  {id:"V2", targetKey:"T2_DNA_STRUCTURE", skill:"Phosphate",
+    q:"In a DNA nucleotide, the phosphate group is part of the…",
+    choices:["nitrogen base","sugar-phosphate backbone","hydrogen bonds","amino acid chain"],
+    answer:1, explain:"Phosphate (with sugar) forms the backbone of DNA."},
+  {id:"V3", targetKey:"T2_DNA_STRUCTURE", skill:"Deoxyribose Sugar",
+    q:"Which sugar is found in DNA?",
+    choices:["Ribose","Deoxyribose","Sucrose","Lactose"],
+    answer:1, explain:"DNA contains deoxyribose; RNA contains ribose."},
+  {id:"V4", targetKey:"T2_DNA_STRUCTURE", skill:"Nitrogen Base",
+    q:"A nitrogen base in DNA refers to…",
+    choices:["A, T, C, or G","the phosphate group","the sugar in the backbone","the enzyme helicase"],
+    answer:0, explain:"Nitrogen bases are A, T, C, and G in DNA."},
   {id:"S1", targetKey:"T2_DNA_STRUCTURE", skill:"Complementary Bases",
     q:"In DNA, Adenine (A) pairs with…",
     choices:["Cytosine (C)","Guanine (G)","Thymine (T)","Uracil (U)"],
     answer:2, explain:"Complementary base pairing in DNA: A–T and C–G (U is in RNA)."},
-  {id:"S2", targetKey:"T2_DNA_STRUCTURE", skill:"Complementary Bases",
-    q:"In DNA, Cytosine (C) pairs with…",
-    choices:["Adenine (A)","Guanine (G)","Thymine (T)","Uracil (U)"],
-    answer:1, explain:"C pairs with G in DNA."},
   {id:"S3", targetKey:"T2_DNA_STRUCTURE", skill:"Hydrogen Bonds",
     q:"What holds complementary bases together across the two DNA strands?",
     choices:["Covalent bonds","Hydrogen bonds","Peptide bonds","Ionic bonds"],
@@ -387,12 +408,7 @@ const QUESTION_BANK = [
     q:"What type of bond makes the sugar-phosphate backbone strong and stable?",
     choices:["Hydrogen bonds","Covalent bonds","Peptide bonds","None"],
     answer:1, explain:"Covalent bonds connect sugar and phosphate in the backbone."},
-  {id:"S5", targetKey:"T2_DNA_STRUCTURE", skill:"Nucleotide",
-    q:"A DNA nucleotide is made of…",
-    choices:["phosphate + sugar + nitrogen base","protein + lipid + sugar","amino acids only","ribose + uracil only"],
-    answer:0, explain:"A nucleotide has a phosphate group, a sugar, and a nitrogen base."},
 
-  // Target 3: Replication
   {id:"R1", targetKey:"T3_REPLICATION", skill:"Replication overview",
     q:"DNA replication is best described as…",
     choices:["making RNA from DNA","copying DNA before cell division","making protein from RNA","changing DNA into RNA permanently"],
@@ -419,7 +435,6 @@ const QUESTION_BANK = [
     ],
     answer:0, explain:"Hydrogen bonds (between bases) are easier to break than covalent bonds (backbone)."},
 
-  // Target 4: DNA vs RNA
   {id:"DVR1", targetKey:"T4_DNA_VS_RNA", skill:"DNA vs RNA",
     q:"Which difference between DNA and RNA is correct?",
     choices:[
@@ -443,33 +458,21 @@ const QUESTION_BANK = [
     choices:["Deoxyribose","Ribose","Glucose","Fructose"],
     answer:1, explain:"RNA contains ribose sugar (DNA contains deoxyribose)."},
 
-  // Target 5: Vocab Precision
   {id:"V1", targetKey:"T5_VOCAB", skill:"Nucleic Acid",
     q:"DNA and RNA are examples of which type of molecule?",
     choices:["Lipids","Carbohydrates","Nucleic acids","Proteins"],
     answer:2, explain:"DNA and RNA are nucleic acids (store/use genetic information)."},
-  {id:"V2", targetKey:"T5_VOCAB", skill:"Phosphate",
-    q:"In a DNA nucleotide, the phosphate group is part of the…",
-    choices:["nitrogen base","sugar-phosphate backbone","hydrogen bonds","amino acid chain"],
-    answer:1, explain:"Phosphate (with sugar) forms the backbone of DNA."},
-  {id:"V3", targetKey:"T5_VOCAB", skill:"Deoxyribose Sugar",
-    q:"Which sugar is found in DNA?",
-    choices:["Ribose","Deoxyribose","Sucrose","Lactose"],
-    answer:1, explain:"DNA contains deoxyribose; RNA contains ribose."},
-  {id:"V4", targetKey:"T5_VOCAB", skill:"Nitrogen Base",
-    q:"A nitrogen base in DNA refers to…",
-    choices:["A, T, C, or G","the phosphate group","the sugar in the backbone","the enzyme helicase"],
-    answer:0, explain:"Nitrogen bases are A, T, C, and G in DNA."}
+  {id:"VR2", targetKey:"T5_VOCAB", skill:"Ribose Sugar",
+    q:"Which sugar is found in RNA?",
+    choices:["Deoxyribose","Ribose","Sucrose","Lactose"],
+    answer:1, explain:"RNA contains ribose."}
 ];
 
 /* =========================
-   Adaptive tracking (by SKILL) + Mastery (by TARGET)
+   Adaptive tracking
    ========================= */
-const SKILL_TRACK = {}; // skill -> {c,w,st}
-function tSkill(skill){
-  SKILL_TRACK[skill] ??= {c:0,w:0,st:0};
-  return SKILL_TRACK[skill];
-}
+const SKILL_TRACK = {};
+function tSkill(skill){ SKILL_TRACK[skill] ??= {c:0,w:0,st:0}; return SKILL_TRACK[skill]; }
 function isSkillMastered(skill){
   const t = tSkill(skill);
   return (t.st >= 3 && t.c >= 3 && t.w <= 2);
@@ -477,26 +480,20 @@ function isSkillMastered(skill){
 function targetProgress(targetKey){
   const target = TARGETS.find(t=>t.key===targetKey);
   if(!target) return {pct:0, mastered:false, masteredCount:0, total:1};
-
   const total = target.skills.length || 1;
   const masteredCount = target.skills.filter(isSkillMastered).length;
   const pct = Math.round((masteredCount/total)*100);
-  const mastered = masteredCount === total; // all skills mastered for that target
+  const mastered = masteredCount === total;
   return {pct, mastered, masteredCount, total};
 }
-
-/* =========================
-   Render Targets Panel
-   ========================= */
 function renderTargetsPanel(){
-  const wrap = el("targetsPanel");
-  wrap.innerHTML = "";
-
+  const wrap=el("targetsPanel");
+  wrap.innerHTML="";
   TARGETS.forEach(t=>{
-    const prog = targetProgress(t.key);
-    const card = document.createElement("div");
-    card.className = "targetCard";
-    card.innerHTML = `
+    const prog=targetProgress(t.key);
+    const card=document.createElement("div");
+    card.className="targetCard";
+    card.innerHTML=`
       <div class="targetTop">
         <div>
           <div class="targetTitle">${t.title}</div>
@@ -508,136 +505,25 @@ function renderTargetsPanel(){
           ${prog.mastered ? "✅ Mastered" : "⏳ In progress"}
         </div>
       </div>
-      <div class="bar" aria-label="progress">
-        <div style="width:${prog.pct}%"></div>
-      </div>
+      <div class="bar"><div style="width:${prog.pct}%"></div></div>
     `;
     wrap.appendChild(card);
   });
 }
 
 /* =========================
-   Target Select UI
-   ========================= */
-function buildTargetSelect(){
-  const s = el("targetSelect");
-  s.innerHTML = "";
-  TARGET_SELECT.forEach(o=>{
-    const opt = document.createElement("option");
-    opt.value = o.key;
-    opt.textContent = o.label;
-    s.appendChild(opt);
-  });
-  s.value = "ALL";
-}
-
-/* =========================
-   Quiz state
+   Quiz logic
    ========================= */
 let mode = "adaptive";
 let selectedTargetKey = "ALL";
 let current = null;
 let locked = false;
-
 let quizAnswered = 0;
 let quizScore = 0;
 let streak = 0;
 let missedIds = new Set();
 
-function quizAccuracy(){
-  return quizAnswered ? Math.round((quizScore/quizAnswered)*100) : null;
-}
-
-function buildPool(){
-  const base = QUESTION_BANK.filter(q=>{
-    return selectedTargetKey === "ALL" ? true : q.targetKey === selectedTargetKey;
-  });
-
-  if(mode === "random"){
-    const p = [...base]; shuffle(p); return p;
-  }
-  if(mode === "missed"){
-    const p = base.filter(q=>missedIds.has(q.id));
-    shuffle(p);
-    return p;
-  }
-  // adaptive: keep base, we choose with weights
-  return base;
-}
-
-function weightForQuestion(q){
-  // heavier weight if skill is weak
-  const t = tSkill(q.skill);
-  let w = 1.0;
-  w += Math.max(0, t.w - t.c) * 0.9;
-  w += (3 - Math.min(3, t.st)) * 0.6;
-  w *= (0.85 + Math.random()*0.30);
-  return Math.max(0.15, w);
-}
-
-function pickAdaptive(pool){
-  if(!pool.length) return null;
-  const weights = pool.map(weightForQuestion);
-  const total = weights.reduce((a,b)=>a+b,0);
-  let r = Math.random()*total;
-  for(let i=0;i<pool.length;i++){
-    r -= weights[i];
-    if(r<=0) return pool[i];
-  }
-  return pool[pool.length-1];
-}
-
-let randomIndex = 0;
-let randomPoolCache = [];
-function nextQuestion(){
-  const pool = buildPool();
-  if(!pool.length){
-    el("questionText").textContent = "No questions match your current setting. Try All Targets or Adaptive mode.";
-    el("answers").innerHTML = "";
-    el("feedback").style.display = "none";
-    return;
-  }
-
-  if(mode === "adaptive"){
-    current = pickAdaptive(pool);
-  } else {
-    // random or missed: cycle through shuffled pool
-    if(randomPoolCache.length === 0 || randomIndex >= randomPoolCache.length){
-      randomPoolCache = pool;
-      randomIndex = 0;
-    }
-    current = randomPoolCache[randomIndex++];
-  }
-
-  locked = false;
-  el("feedback").style.display = "none";
-  el("skillPill").innerHTML = `<strong>Skill:</strong> ${current.skill}`;
-  el("questionText").textContent = current.q;
-
-  const letters = ["A","B","C","D"];
-  const wrap = el("answers");
-  wrap.innerHTML = "";
-  current.choices.forEach((c,i)=>{
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "answerBtn";
-    btn.innerHTML = `<div class="letter">${letters[i]}</div><div>${c}</div>`;
-    btn.addEventListener("click", ()=>chooseAnswer(i));
-    wrap.appendChild(btn);
-  });
-}
-
-function showFeedback(good, headline, short, explain){
-  const fb = el("feedback");
-  fb.style.display = "block";
-  fb.classList.remove("good","bad");
-  fb.classList.add(good ? "good" : "bad");
-  el("fbIcon").textContent = good ? "✅" : "❌";
-  el("fbHeadline").textContent = headline;
-  el("fbShort").textContent = short;
-  el("fbExplain").textContent = explain;
-}
-
+function quizAccuracy(){ return quizAnswered ? Math.round((quizScore/quizAnswered)*100) : null; }
 function updateQuizUI(){
   el("quizScore").textContent = String(quizScore);
   el("quizAnswered").textContent = String(quizAnswered);
@@ -645,188 +531,465 @@ function updateQuizUI(){
   el("quizAcc").textContent = (acc===null) ? "—" : `${acc}%`;
   el("streakNum").textContent = String(streak);
 }
+function buildPool(){
+  const base = QUESTION_BANK.filter(q => selectedTargetKey==="ALL" ? true : q.targetKey===selectedTargetKey);
+  if(mode==="random"){ const p=[...base]; shuffle(p); return p; }
+  if(mode==="missed"){ const p=base.filter(q=>missedIds.has(q.id)); shuffle(p); return p; }
+  return base;
+}
+function weightForQuestion(q){
+  const t = tSkill(q.skill);
+  let w = 1.0;
+  w += Math.max(0, t.w - t.c) * 0.9;
+  w += (3 - Math.min(3, t.st)) * 0.6;
+  w *= (0.85 + Math.random()*0.30);
+  return Math.max(0.15, w);
+}
+function pickAdaptive(pool){
+  const weights = pool.map(weightForQuestion);
+  const total = weights.reduce((a,b)=>a+b,0);
+  let r = Math.random()*total;
+  for(let i=0;i<pool.length;i++){ r -= weights[i]; if(r<=0) return pool[i]; }
+  return pool[pool.length-1];
+}
+let randomIndex=0, randomPoolCache=[];
+function nextQuestion(){
+  const pool = buildPool();
+  if(!pool.length){
+    el("questionText").textContent = "No questions match your current setting. Try All Targets.";
+    el("answers").innerHTML = "";
+    el("feedback").style.display = "none";
+    return;
+  }
+  if(mode==="adaptive") current = pickAdaptive(pool);
+  else {
+    if(randomPoolCache.length===0 || randomIndex>=randomPoolCache.length){ randomPoolCache=pool; randomIndex=0; }
+    current = randomPoolCache[randomIndex++];
+  }
 
+  locked=false;
+  el("feedback").style.display="none";
+  el("skillPill").innerHTML = `<strong>Skill:</strong> ${current.skill}`;
+  el("questionText").textContent = current.q;
+
+  const letters=["A","B","C","D"];
+  const wrap=el("answers"); wrap.innerHTML="";
+  current.choices.forEach((c,i)=>{
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className="answerBtn";
+    btn.innerHTML=`<div class="letter">${letters[i]}</div><div>${c}</div>`;
+    btn.addEventListener("click",()=>chooseAnswer(i));
+    wrap.appendChild(btn);
+  });
+}
+function showFeedback(good, headline, short, explain){
+  const fb=el("feedback");
+  fb.style.display="block";
+  fb.classList.remove("good","bad");
+  fb.classList.add(good?"good":"bad");
+  el("fbIcon").textContent = good ? "✅" : "❌";
+  el("fbHeadline").textContent = headline;
+  el("fbShort").textContent = short;
+  el("fbExplain").textContent = explain;
+}
 function chooseAnswer(i){
   if(locked || !current) return;
-  locked = true;
+  locked=true;
 
-  const btns = [...document.querySelectorAll(".answerBtn")];
+  const btns=[...document.querySelectorAll(".answerBtn")];
   btns.forEach(b=>b.classList.add("locked"));
 
   quizAnswered++;
-  const correct = current.answer;
+  const correct=current.answer;
   btns[correct].classList.add("correct");
-  if(i !== correct) btns[i].classList.add("wrong");
+  if(i!==correct) btns[i].classList.add("wrong");
 
-  const t = tSkill(current.skill);
+  const t=tSkill(current.skill);
 
-  if(i === correct){
+  if(i===correct){
     quizScore++;
     streak++;
     t.c++; t.st++;
-    showFeedback(true, "Correct!", "You earned movement power.", current.explain);
-
-    // movement reward scales with level and streak
-    const moveGain = 5 + Math.min(6, level) + (streak>=3 ? 2 : 0);
+    showFeedback(true,"Correct!","You earned movement power.",current.explain);
+    const moveGain = 5 + Math.min(8, level) + (streak>=3 ? 2 : 0);
     moves += moveGain;
-  } else {
-    streak = 0;
-    t.w++; t.st = 0;
+    beep(740,0.06,0.06);
+  }else{
+    streak=0;
+    t.w++; t.st=0;
     missedIds.add(current.id);
-    showFeedback(false, "Not quite.", `Correct: ${["A","B","C","D"][correct]} — ${current.choices[correct]}`, current.explain);
+    showFeedback(false,"Not quite.",`Correct: ${["A","B","C","D"][correct]} — ${current.choices[correct]}`,current.explain);
+    beep(220,0.10,0.07,"square");
   }
 
   updateQuizUI();
-  renderTargetsPanel(); // update mastery visualization
+  renderTargetsPanel();
   updateHUD();
 }
-
-/* =========================
-   Hints
-   ========================= */
 function hint(){
   if(!current) return;
   const hints = {
-    "Central Dogma":"Think: storage → message → product (DNA → RNA → protein).",
-    "Transcription":"DNA becomes an RNA message.",
+    "Central Dogma":"Storage → message → product (DNA → RNA → protein).",
+    "Transcription":"DNA becomes an RNA message (mRNA).",
     "Translation":"mRNA is used to build a protein at ribosomes.",
+    "Nucleotide":"3 parts: phosphate + sugar + base.",
+    "Phosphate":"Backbone component (sugar-phosphate).",
+    "Deoxyribose Sugar":"DNA sugar = deoxyribose.",
+    "Ribose Sugar":"RNA sugar = ribose.",
+    "Nitrogen Base":"A, T, C, G in DNA.",
     "Complementary Bases":"A–T and C–G in DNA.",
-    "Hydrogen Bonds":"Weaker bonds holding bases together across strands.",
-    "Covalent Bonds":"Strong bonds in the sugar-phosphate backbone.",
-    "Nucleotide":"3 parts: phosphate, sugar, base.",
+    "Hydrogen Bonds":"Weaker bonds between bases across strands.",
+    "Covalent Bonds":"Strong bonds in sugar-phosphate backbone.",
     "Replication overview":"Copy DNA before cell division.",
     "Helicase":"Unzips DNA (breaks hydrogen bonds).",
     "DNA polymerase":"Adds complementary nucleotides.",
     "Ligase":"Seals fragments together.",
     "DNA vs RNA":"Compare sugar + base + strands + role.",
-    "RNA":"Helps carry/translate info for protein building.",
-    "Phosphate":"Backbone component (sugar-phosphate).",
-    "Nitrogen Base":"A, T, C, G in DNA."
+    "RNA":"Nucleic acid used in gene expression."
   };
-  showFeedback(true, "Hint", "Use this clue, then answer:", hints[current.skill] || "Use structure → function and the Central Dogma logic.");
+  showFeedback(true,"Hint","Use this clue, then answer:", hints[current.skill] || "Use structure→function and Central Dogma logic.");
+  beep(520,0.06,0.05);
 }
 
 /* =========================
-   Game (Pac) with Levels
+   Game: tiles + pellets + ghosts + warp
    ========================= */
-const game = el("game");
-const gctx = game.getContext("2d");
+const game=el("game");
+const gctx=game.getContext("2d");
 
-const TILE = 24;
-const GRID_W = 28;
-const GRID_H = 17;
-const OFFSET_X = 12;
-const OFFSET_Y = 12;
-const WALL = 1, DOT = 2, EMPTY = 0;
+const TILE=24;
+const GRID_W=29;
+const GRID_H=19;
+const OFFSET_X=12;
+const OFFSET_Y=12;
 
-const BASE_MAZE = [
-  "1111111111111111111111111111",
-  "1000000000110000000000000001",
-  "1011111110110111111111111101",
-  "1000000010000100000001000001",
-  "1111111011111111111101111111",
-  "1000000010000000000100000001",
-  "1011111110111111110111111101",
-  "1000000000100000010000000001",
-  "1111111111101111011111111111",
-  "1000000000001000010000000001",
-  "1011111111111011111111111101",
-  "1000000010000000000100000001",
-  "1111111010111111110101111111",
-  "1000000010000100000001000001",
-  "1011111110110111111111111101",
-  "1000000000110000000000000001",
-  "1111111111111111111111111111",
-].map(row=>row.split("").map(c=>c==="1"?WALL:EMPTY));
+const WALL=1, DOT=2, EMPTY=0, PELLET=3;
 
-let grid = [];
-let dotsLeft = 0;
+let grid=[];
+let dotsLeft=0;
+let lives=3;
+let moves=0;
+let level=1;
+let gameScore=0;
 
-let level = 1;
-let lives = 3;
-let moves = 0;
+let pac={x:1,y:1, dir:{x:0,y:0}};
+let ghosts=[];
+let ghostTick=0;
 
-let pac = {x:1,y:1, dir:{x:0,y:0}};
-let ghost = {x:26,y:15, dir:{x:-1,y:0}};
-let ghostTick = 0;
+// power pellets
+let powerUntil = 0; // performance.now() timestamp
+function powerSecondsLeft(){ return Math.max(0, (powerUntil - performance.now())/1000); }
+function powered(){ return performance.now() < powerUntil; }
 
-// character
-let charMode = "mr";
+let charMode="mr";
 el("charSelect").addEventListener("change", ()=>{
-  charMode = el("charSelect").value;
-  el("charName").textContent = (charMode==="ms") ? "Ms. Pac-Cell" : "Mr. Pac-Cell";
+  charMode=el("charSelect").value;
+  el("charName").textContent=(charMode==="ms") ? "Ms. Pac-Cell" : "Mr. Pac-Cell";
   drawGame();
 });
 
-function resetLevel(){
-  grid = BASE_MAZE.map(r=>r.slice());
-  dotsLeft = 0;
+// Ghost colors
+const GHOST_COLORS=["#ff5c7a","#7cc4ff","#ffd166","#b79cff"];
 
-  // sprinkle dots on empty tiles (with some variation by level)
+// Ghost count by level (caps at 4)
+function ghostCountForLevel(){
+  if(level>=6) return 4;
+  if(level>=4) return 3;
+  if(level>=2) return 2;
+  return 1;
+}
+function ghostSpeedFrames(){
+  return clamp(10 - Math.floor((level-1)*0.8), 2, 10);
+}
+
+/* ---------- Maze generation (connected) ---------- */
+function generateMaze(){
+  grid = Array.from({length: GRID_H}, ()=>Array(GRID_W).fill(WALL));
+  const inBounds=(x,y)=> x>0 && y>0 && x<GRID_W-1 && y<GRID_H-1;
+  const stack=[{x:1,y:1}];
+  grid[1][1]=EMPTY;
+  const dirs=[{x:2,y:0},{x:-2,y:0},{x:0,y:2},{x:0,y:-2}];
+
+  while(stack.length){
+    const cur=stack[stack.length-1];
+    const neighbors=[];
+    for(const d of dirs){
+      const nx=cur.x+d.x, ny=cur.y+d.y;
+      if(!inBounds(nx,ny)) continue;
+      if(grid[ny][nx]===WALL){
+        neighbors.push({x:nx,y:ny, wx:cur.x+d.x/2, wy:cur.y+d.y/2});
+      }
+    }
+    if(neighbors.length){
+      const n=neighbors[Math.floor(Math.random()*neighbors.length)];
+      grid[n.wy][n.wx]=EMPTY;
+      grid[n.y][n.x]=EMPTY;
+      stack.push({x:n.x,y:n.y});
+    }else stack.pop();
+  }
+
+  // extra loops scale with level
+  const extraOpenings = clamp(Math.floor((level-1)*2), 0, 20);
+  for(let i=0;i<extraOpenings;i++){
+    const x=1+Math.floor(Math.random()*(GRID_W-2));
+    const y=1+Math.floor(Math.random()*(GRID_H-2));
+    if(grid[y][x]===WALL){
+      const openNeighbors = [
+        grid[y][x-1],grid[y][x+1],grid[y-1]?.[x],grid[y+1]?.[x]
+      ].filter(v=>v===EMPTY).length;
+      if(openNeighbors>=2) grid[y][x]=EMPTY;
+    }
+  }
+
+  // warp tunnels at mid row
+  const midY=Math.floor(GRID_H/2);
+  grid[midY][0]=EMPTY; grid[midY][GRID_W-1]=EMPTY;
+  grid[midY][1]=EMPTY; grid[midY][GRID_W-2]=EMPTY;
+
+  // spawn opening
+  pac={x:1,y:1, dir:{x:0,y:0}};
+  grid[1][1]=EMPTY; grid[1][2]=EMPTY; grid[2][1]=EMPTY; grid[2][2]=EMPTY;
+}
+
+/* ---------- Connectivity patch + dot placement ---------- */
+function placeReachableDots(){
+  const visited=Array.from({length:GRID_H},()=>Array(GRID_W).fill(false));
+  const q=[{x:pac.x,y:pac.y}];
+  visited[pac.y][pac.x]=true;
+  const stepDirs=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+  const midY=Math.floor(GRID_H/2);
+
+  const isWalkable=(x,y)=>grid[y] && grid[y][x]!==WALL;
+
+  while(q.length){
+    const cur=q.shift();
+    for(const d of stepDirs){
+      let nx=cur.x+d.x, ny=cur.y+d.y;
+      // wrap in mid row
+      if(cur.y===midY && ny===midY){
+        if(nx<0) nx=GRID_W-1;
+        if(nx>=GRID_W) nx=0;
+      }
+      if(nx<0||ny<0||nx>=GRID_W||ny>=GRID_H) continue;
+      if(visited[ny][nx]) continue;
+      if(!isWalkable(nx,ny)) continue;
+      visited[ny][nx]=true;
+      q.push({x:nx,y:ny});
+    }
+  }
+
+  // clear any old dots/pellets
   for(let y=0;y<GRID_H;y++){
     for(let x=0;x<GRID_W;x++){
-      if(grid[y][x]===EMPTY){
-        // At higher levels, keep some empty tiles to increase difficulty
-        const keepDot = (level <= 2) ? true : (Math.random() > Math.min(0.22, (level-2)*0.05));
-        if(keepDot){ grid[y][x] = DOT; dotsLeft++; }
+      if(grid[y][x]===DOT || grid[y][x]===PELLET) grid[y][x]=EMPTY;
+    }
+  }
+
+  // place dots on reachable tiles
+  dotsLeft=0;
+  const reachable=[];
+  for(let y=0;y<GRID_H;y++){
+    for(let x=0;x<GRID_W;x++){
+      if(grid[y][x]===EMPTY && visited[y][x]){
+        grid[y][x]=DOT;
+        dotsLeft++;
+        reachable.push({x,y});
       }
     }
   }
 
-  // clear spawn zones
-  const clearSpots = [
-    {x:1,y:1},{x:2,y:1},{x:1,y:2},{x:2,y:2},
-    {x:26,y:15},{x:25,y:15},{x:26,y:14},{x:25,y:14}
-  ];
-  clearSpots.forEach(p=>{
-    if(grid[p.y]?.[p.x]===DOT){ grid[p.y][p.x]=EMPTY; dotsLeft--; }
+  // clear spawn area
+  const clear=[{x:1,y:1},{x:2,y:1},{x:1,y:2},{x:2,y:2}];
+  clear.forEach(p=>{ if(grid[p.y][p.x]===DOT){ grid[p.y][p.x]=EMPTY; dotsLeft--; } });
+
+  // place power pellets: 2–4 per level, far from spawn
+  const pelletCount = clamp(2 + Math.floor((level-1)/2), 2, 4);
+  reachable.sort((a,b)=>{
+    const da=Math.abs(a.x-1)+Math.abs(a.y-1);
+    const db=Math.abs(b.x-1)+Math.abs(b.y-1);
+    return db-da;
   });
 
-  pac = {x:1,y:1, dir:{x:0,y:0}};
-  ghost = {x:26,y:15, dir:{x:-1,y:0}};
-  ghostTick = 0;
-  updateHUD();
-}
-
-function updateHUD(){
-  el("levelNum").textContent = String(level);
-  el("movesNum").textContent = String(moves);
-  el("livesNum").textContent = String(lives);
-  el("dotsLeft").textContent = String(dotsLeft);
-}
-
-function canMove(x,y){
-  return grid[y] && grid[y][x] !== WALL;
-}
-
-function eatDot(){
-  if(grid[pac.y][pac.x]===DOT){
-    grid[pac.y][pac.x] = EMPTY;
-    dotsLeft--;
-    if(dotsLeft <= 0){
-      // level up
-      level++;
-      // small bonus moves to celebrate progression
-      moves += 6;
-      alert(`LEVEL UP! You reached Level ${level}. Ghost gets faster.`);
-      resetLevel();
-    }
+  let placed=0;
+  for(const p of reachable){
+    if(placed>=pelletCount) break;
+    if(grid[p.y][p.x]!==DOT) continue;
+    if(Math.abs(p.x-1)+Math.abs(p.y-1) < 10) continue;
+    grid[p.y][p.x]=PELLET;
+    placed++;
   }
 }
 
+/* ---------- Level reset (new maze + theme + ghosts) ---------- */
+function resetLevel(){
+  theme = themeForLevel(level);
+  el("themeName").textContent = theme.name;
+
+  generateMaze();
+  placeReachableDots();
+
+  // spawn ghosts
+  ghosts=[];
+  const n=ghostCountForLevel();
+  for(let i=0;i<n;i++){
+    const g = {
+      x: GRID_W-2-i,
+      y: GRID_H-2,
+      dir:{x:-1,y:0},
+      color: GHOST_COLORS[i % GHOST_COLORS.length],
+      home:{x: GRID_W-2-i, y: GRID_H-2}
+    };
+
+    if(grid[g.y][g.x]===WALL){
+      outer: for(let yy=GRID_H-2;yy>=1;yy--){
+        for(let xx=GRID_W-2;xx>=1;xx--){
+          if(grid[yy][xx]!==WALL){ g.x=xx; g.y=yy; g.home={x:xx,y:yy}; break outer; }
+        }
+      }
+    }
+    if(grid[g.y][g.x]===DOT || grid[g.y][g.x]===PELLET){
+      grid[g.y][g.x]=EMPTY;
+      dotsLeft--;
+    }
+    ghosts.push(g);
+  }
+
+  ghostTick=0;
+  powerUntil=0;
+  updateHUD();
+  drawGame();
+}
+
+function updateHUD(){
+  el("levelNum").textContent=String(level);
+  el("movesNum").textContent=String(moves);
+  el("livesNum").textContent=String(lives);
+  el("dotsLeft").textContent=String(dotsLeft);
+  el("ghostCount").textContent=String(ghosts.length);
+  el("gameScore").textContent=String(gameScore);
+  el("powerTime").textContent = powerSecondsLeft().toFixed(1);
+}
+
+/* ---------- Movement + warp ---------- */
+function canMove(x,y){ return grid[y] && grid[y][x]!==WALL; }
+function warpIfNeeded(nx,ny){
+  const midY=Math.floor(GRID_H/2);
+  if(ny===midY){
+    if(nx<0) nx=GRID_W-1;
+    if(nx>=GRID_W) nx=0;
+  }
+  return {nx,ny};
+}
+
+/* ---------- Collectibles ---------- */
+function eatTile(){
+  const t = grid[pac.y][pac.x];
+  if(t===DOT){
+    grid[pac.y][pac.x]=EMPTY;
+    dotsLeft--;
+    gameScore += 10;
+    beep(880,0.04,0.05);
+  } else if(t===PELLET){
+    grid[pac.y][pac.x]=EMPTY;
+    dotsLeft--;
+    gameScore += 50;
+    const seconds = clamp(6 + Math.floor(level/2), 6, 10);
+    powerUntil = performance.now() + seconds*1000;
+    beep(990,0.08,0.07,"triangle");
+    beep(740,0.08,0.05,"triangle");
+  }
+
+  if(dotsLeft<=0){
+    level++;
+    moves += 6;
+    gameScore += 200;
+    beep(990,0.10,0.07);
+    alert(`LEVEL UP! Level ${level} — new theme, new maze, harder ghosts.`);
+    resetLevel();
+  }
+}
+
+function collideGhostIndex(){ return ghosts.findIndex(g => g.x===pac.x && g.y===pac.y); }
+
+function loseLife(){
+  lives--;
+  moves = Math.max(0, moves-3);
+  pac={x:1,y:1, dir:{x:0,y:0}};
+  beep(220,0.12,0.07,"square");
+
+  if(lives<=0){
+    alert("Game Over — restarting at Level 1.");
+    lives=3; level=1; moves=0; gameScore=0;
+    resetLevel();
+  }
+  updateHUD();
+}
+
+function eatGhost(g){
+  gameScore += 200;
+  beep(520,0.06,0.06,"sawtooth");
+  beep(620,0.06,0.06,"sawtooth");
+  g.x = g.home.x;
+  g.y = g.home.y;
+  g.dir = {x:-1,y:0};
+}
+
+/* ---------- Ghost AI ---------- */
+function ghostStepOne(g){
+  const options = [
+    {x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}
+  ].filter(d=>{
+    let nx=g.x+d.x, ny=g.y+d.y;
+    ({nx,ny}=warpIfNeeded(nx,ny));
+    if(nx<0||ny<0||nx>=GRID_W||ny>=GRID_H) return false;
+    return canMove(nx,ny);
+  });
+  if(!options.length) return;
+
+  const back={x:-g.dir.x,y:-g.dir.y};
+  let filtered=options;
+  if(options.length>1){
+    filtered = options.filter(d=>!(d.x===back.x && d.y===back.y));
+    if(!filtered.length) filtered=options;
+  }
+
+  const isPowered = powered();
+  const bias = clamp(0.45 + (level-1)*0.06, 0.45, 0.85);
+
+  let choice;
+  if(Math.random() < bias){
+    filtered.sort((a,b)=>{
+      let ax=g.x+a.x, ay=g.y+a.y;
+      let bx=g.x+b.x, by=g.y+b.y;
+      ({nx:ax,ny:ay}=warpIfNeeded(ax,ay));
+      ({nx:bx,ny:by}=warpIfNeeded(bx,by));
+      const da=Math.abs(ax-pac.x)+Math.abs(ay-pac.y);
+      const db=Math.abs(bx-pac.x)+Math.abs(by-pac.y);
+      return isPowered ? (db-da) : (da-db);
+    });
+    choice=filtered[0];
+  } else {
+    choice=filtered[Math.floor(Math.random()*filtered.length)];
+  }
+
+  g.dir=choice;
+  let nx=g.x+g.dir.x, ny=g.y+g.dir.y;
+  ({nx,ny}=warpIfNeeded(nx,ny));
+  g.x=nx; g.y=ny;
+}
+
+/* ---------- Draw ---------- */
 function drawPac(px,py){
   const fill = (charMode==="ms") ? "#ffe08a" : "#ffd166";
+  const d=pac.dir;
+  let dirAngle=0;
+  if(d.x===1) dirAngle=0;
+  else if(d.x===-1) dirAngle=Math.PI;
+  else if(d.y===1) dirAngle=Math.PI/2;
+  else if(d.y===-1) dirAngle=-Math.PI/2;
 
-  // mouth angle based on direction
-  const d = pac.dir;
-  let dirAngle = 0;
-  if(d.x===1) dirAngle = 0;
-  else if(d.x===-1) dirAngle = Math.PI;
-  else if(d.y===1) dirAngle = Math.PI/2;
-  else if(d.y===-1) dirAngle = -Math.PI/2;
-
-  const mouth = (moves>0) ? 0.42 : 0.18;
-
+  const mouth = (moves>0) ? 0.40 : 0.16;
   gctx.fillStyle = fill;
   gctx.beginPath();
   gctx.moveTo(px,py);
@@ -834,15 +997,14 @@ function drawPac(px,py){
   gctx.closePath();
   gctx.fill();
 
-  // Ms bow
   if(charMode==="ms"){
     gctx.save();
     gctx.translate(px,py);
     const bx=-5, by=-12;
-    gctx.fillStyle = "#ff5c7a";
+    gctx.fillStyle="#ff5c7a";
     gctx.beginPath(); gctx.ellipse(bx-3, by, 4.2, 3, 0, 0, Math.PI*2); gctx.fill();
     gctx.beginPath(); gctx.ellipse(bx+3, by, 4.2, 3, 0, 0, Math.PI*2); gctx.fill();
-    gctx.fillStyle = "#ffd166";
+    gctx.fillStyle="#ffd166";
     gctx.beginPath(); gctx.arc(bx, by, 1.8, 0, Math.PI*2); gctx.fill();
     gctx.restore();
   }
@@ -851,11 +1013,9 @@ function drawPac(px,py){
 function drawGame(){
   gctx.clearRect(0,0,game.width,game.height);
 
-  // background
-  gctx.fillStyle = "rgba(255,255,255,0.03)";
+  gctx.fillStyle = theme.bg;
   gctx.fillRect(0,0,game.width,game.height);
 
-  // grid
   for(let y=0;y<GRID_H;y++){
     for(let x=0;x<GRID_W;x++){
       const t = grid[y][x];
@@ -863,119 +1023,90 @@ function drawGame(){
       const py = OFFSET_Y + y*TILE;
 
       if(t===WALL){
-        gctx.fillStyle = "rgba(124,196,255,0.20)";
+        gctx.fillStyle = theme.wallFill;
         gctx.fillRect(px,py,TILE,TILE);
-        gctx.strokeStyle = "rgba(183,156,255,0.35)";
+        gctx.strokeStyle = theme.wallStroke;
         gctx.strokeRect(px+1,py+1,TILE-2,TILE-2);
       } else if(t===DOT){
-        gctx.fillStyle="#eef2ff";
-        gctx.globalAlpha=0.9;
+        gctx.fillStyle = theme.dot;
+        gctx.globalAlpha=0.90;
         gctx.beginPath();
         gctx.arc(px+TILE/2, py+TILE/2, 3.2, 0, Math.PI*2);
+        gctx.fill();
+        gctx.globalAlpha=1;
+      } else if(t===PELLET){
+        gctx.fillStyle = theme.pellet;
+        gctx.globalAlpha=0.95;
+        gctx.beginPath();
+        gctx.arc(px+TILE/2, py+TILE/2, 6.2, 0, Math.PI*2);
         gctx.fill();
         gctx.globalAlpha=1;
       }
     }
   }
 
-  // pac
+  const midY=Math.floor(GRID_H/2);
+  gctx.globalAlpha=0.35;
+  gctx.fillStyle=theme.pellet;
+  gctx.fillRect(OFFSET_X + 0*TILE, OFFSET_Y + midY*TILE, TILE, TILE);
+  gctx.fillRect(OFFSET_X + (GRID_W-1)*TILE, OFFSET_Y + midY*TILE, TILE, TILE);
+  gctx.globalAlpha=1;
+
   const ppx = OFFSET_X + pac.x*TILE + TILE/2;
   const ppy = OFFSET_Y + pac.y*TILE + TILE/2;
-  drawPac(ppx, ppy);
+  drawPac(ppx,ppy);
 
-  // ghost
-  const gx = OFFSET_X + ghost.x*TILE + TILE/2;
-  const gy = OFFSET_Y + ghost.y*TILE + TILE/2;
-  gctx.fillStyle = "#ff5c7a";
-  gctx.beginPath();
-  gctx.arc(gx,gy, 10, Math.PI, 0);
-  gctx.lineTo(gx+10, gy+10);
-  gctx.lineTo(gx+5, gy+7);
-  gctx.lineTo(gx, gy+10);
-  gctx.lineTo(gx-5, gy+7);
-  gctx.lineTo(gx-10, gy+10);
-  gctx.closePath();
-  gctx.fill();
-  // eyes
-  gctx.fillStyle="rgba(0,0,0,0.35)";
-  gctx.beginPath(); gctx.arc(gx-3,gy-2, 2.2,0,Math.PI*2); gctx.fill();
-  gctx.beginPath(); gctx.arc(gx+3,gy-2, 2.2,0,Math.PI*2); gctx.fill();
-}
+  const isPowered = powered();
+  for(const g of ghosts){
+    const gx = OFFSET_X + g.x*TILE + TILE/2;
+    const gy = OFFSET_Y + g.y*TILE + TILE/2;
+    const color = isPowered ? "#4da3ff" : g.color;
 
-function ghostSpeedFrames(){
-  // higher level -> faster ghost
-  // (lower frames between steps)
-  return clamp(10 - Math.floor((level-1)*0.8), 3, 10);
-}
+    gctx.fillStyle=color;
+    gctx.beginPath();
+    gctx.arc(gx,gy, 10, Math.PI, 0);
+    gctx.lineTo(gx+10, gy+10);
+    gctx.lineTo(gx+5, gy+7);
+    gctx.lineTo(gx, gy+10);
+    gctx.lineTo(gx-5, gy+7);
+    gctx.lineTo(gx-10, gy+10);
+    gctx.closePath();
+    gctx.fill();
 
-function ghostStep(){
-  // light chase behavior
-  const options = [
-    {x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}
-  ].filter(d=>canMove(ghost.x+d.x, ghost.y+d.y));
-
-  if(!options.length) return;
-
-  // prefer not to immediately reverse unless forced
-  const back = {x:-ghost.dir.x, y:-ghost.dir.y};
-  let filtered = options;
-  if(options.length>1){
-    filtered = options.filter(d=>!(d.x===back.x && d.y===back.y));
-    if(!filtered.length) filtered = options;
-  }
-
-  // bias toward pac at higher levels
-  const chaseProb = clamp(0.45 + (level-1)*0.06, 0.45, 0.80);
-  let choice;
-  if(Math.random() < chaseProb){
-    filtered.sort((a,b)=>{
-      const da = Math.abs((ghost.x+a.x)-pac.x) + Math.abs((ghost.y+a.y)-pac.y);
-      const db = Math.abs((ghost.x+b.x)-pac.x) + Math.abs((ghost.y+b.y)-pac.y);
-      return da-db;
-    });
-    choice = filtered[0];
-  } else {
-    choice = filtered[Math.floor(Math.random()*filtered.length)];
-  }
-
-  ghost.dir = choice;
-  ghost.x += ghost.dir.x;
-  ghost.y += ghost.dir.y;
-}
-
-function checkCollision(){
-  if(ghost.x===pac.x && ghost.y===pac.y){
-    lives--;
-    pac = {x:1,y:1, dir:{x:0,y:0}};
-    moves = Math.max(0, moves-3);
-    if(lives <= 0){
-      alert("Game Over — try again!");
-      // reset everything but keep question mastery (teacher choice). If you want mastery reset too, tell me.
-      lives = 3;
-      level = 1;
-      moves = 0;
-      resetLevel();
-    }
-    updateHUD();
+    gctx.fillStyle="rgba(0,0,0,0.35)";
+    gctx.beginPath(); gctx.arc(gx-3,gy-2, 2.2,0,Math.PI*2); gctx.fill();
+    gctx.beginPath(); gctx.arc(gx+3,gy-2, 2.2,0,Math.PI*2); gctx.fill();
   }
 }
 
+/* ---------- Game loop ---------- */
 function gameTick(){
-  // ghost movement pacing
   ghostTick++;
   if(ghostTick % ghostSpeedFrames() === 0){
-    ghostStep();
-    checkCollision();
+    for(const g of ghosts) ghostStepOne(g);
+
+    const idx = collideGhostIndex();
+    if(idx !== -1){
+      if(powered()) eatGhost(ghosts[idx]);
+      else loseLife();
+    }
   }
+  updateHUD();
   drawGame();
   requestAnimationFrame(gameTick);
 }
 
-// movement
-document.addEventListener("keydown",(e)=>{
-  const k = e.key.toLowerCase();
+/* =========================
+   UI wiring + controls
+   ========================= */
+el("modeSelect").addEventListener("change", (e)=>{ mode=e.target.value; randomPoolCache=[]; randomIndex=0; nextQuestion(); });
+el("targetSelect").addEventListener("change", (e)=>{ selectedTargetKey=e.target.value; randomPoolCache=[]; randomIndex=0; nextQuestion(); });
+el("hintBtn").addEventListener("click", hint);
+el("nextBtn").addEventListener("click", nextQuestion);
+el("resetBtn").addEventListener("click", resetAll);
 
-  // answer hotkeys
+document.addEventListener("keydown",(e)=>{
+  const k=e.key.toLowerCase();
   if(k==="1") chooseAnswer(0);
   if(k==="2") chooseAnswer(1);
   if(k==="3") chooseAnswer(2);
@@ -985,68 +1116,68 @@ document.addEventListener("keydown",(e)=>{
 
   if(moves<=0) return;
 
-  let dir = null;
-  if(e.key==="ArrowLeft") dir = {x:-1,y:0};
-  if(e.key==="ArrowRight") dir = {x:1,y:0};
-  if(e.key==="ArrowUp") dir = {x:0,y:-1};
-  if(e.key==="ArrowDown") dir = {x:0,y:1};
+  let dir=null;
+  if(e.key==="ArrowLeft") dir={x:-1,y:0};
+  if(e.key==="ArrowRight") dir={x:1,y:0};
+  if(e.key==="ArrowUp") dir={x:0,y:-1};
+  if(e.key==="ArrowDown") dir={x:0,y:1};
   if(!dir) return;
 
-  const nx = pac.x + dir.x;
-  const ny = pac.y + dir.y;
+  let nx=pac.x+dir.x, ny=pac.y+dir.y;
+  ({nx,ny}=warpIfNeeded(nx,ny));
+  if(nx<0||ny<0||nx>=GRID_W||ny>=GRID_H) return;
+
   if(canMove(nx,ny)){
-    pac.dir = dir;
-    pac.x = nx; pac.y = ny;
+    pac.dir=dir;
+    pac.x=nx; pac.y=ny;
     moves--;
-    eatDot();
-    checkCollision();
+
+    eatTile();
+
+    const idx=collideGhostIndex();
+    if(idx!==-1){
+      if(powered()) eatGhost(ghosts[idx]);
+      else loseLife();
+    }
     updateHUD();
     drawGame();
   }
 });
 
-/* =========================
-   Wiring UI
-   ========================= */
-el("modeSelect").addEventListener("change", (e)=>{
-  mode = e.target.value;
-  // reset cached pool for non-adaptive cycling
-  randomPoolCache = [];
-  randomIndex = 0;
-  nextQuestion();
-});
-el("targetSelect").addEventListener("change", (e)=>{
-  selectedTargetKey = e.target.value;
-  randomPoolCache = [];
-  randomIndex = 0;
-  nextQuestion();
-});
-el("hintBtn").addEventListener("click", hint);
-el("nextBtn").addEventListener("click", nextQuestion);
-
-el("resetBtn").addEventListener("click", resetAll);
-
 function resetAll(){
-  // quiz reset
   for(const k of Object.keys(SKILL_TRACK)) delete SKILL_TRACK[k];
-  quizAnswered = 0; quizScore = 0; streak = 0;
-  missedIds = new Set();
+  quizAnswered=0; quizScore=0; streak=0;
+  missedIds=new Set();
   updateQuizUI();
 
-  // game reset
-  level = 1; lives = 3; moves = 0;
-  resetLevel();
+  lives=3; level=1; moves=0; gameScore=0;
+  powerUntil=0;
 
+  theme=themeForLevel(level);
+  el("themeName").textContent=theme.name;
+
+  pac={x:1,y:1, dir:{x:0,y:0}};
+  resetLevel();
   renderTargetsPanel();
   nextQuestion();
+  updateHUD();
   drawGame();
+  beep(520,0.08,0.06);
 }
 
+/* =========================
+   Init
+   ========================= */
 buildTargetSelect();
 renderTargetsPanel();
 updateQuizUI();
+
+theme=themeForLevel(level);
+el("themeName").textContent=theme.name;
+
 resetLevel();
 nextQuestion();
+updateHUD();
 drawGame();
 gameTick();
 </script>
